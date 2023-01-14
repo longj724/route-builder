@@ -4,6 +4,7 @@ import { Position } from 'geojson';
 
 // Relative Dependencies
 import { Point } from '../Components/Points';
+import { ElevationGainAndLoss } from '../utils/utils';
 
 // Types
 type RouteProviderProps = {
@@ -14,14 +15,19 @@ export type RouteType = {
   coordinates: Position[];
   selectedPoints: Point[];
   distance: number;
-  elevation: number;
+  elevationPoints: number[];
+  elevationGainAndLoss: ElevationGainAndLoss;
 };
 
 const defaultRoute: RouteType = {
   coordinates: [],
   selectedPoints: [],
   distance: 0,
-  elevation: 0,
+  elevationPoints: [],
+  elevationGainAndLoss: {
+    gain: 0,
+    loss: 0,
+  },
 };
 
 type RouteContextType = {

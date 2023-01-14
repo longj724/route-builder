@@ -11,7 +11,7 @@ import axios from 'axios';
 // Relative Dependencies
 import Route from './Route';
 import Points, { Point } from './Points';
-import { formatPoints } from '../utils/utils';
+import { calculateElevationGainAndLoss, formatPoints } from '../utils/utils';
 import { useRoute, RouteType } from '../Context/RouteProvider';
 
 // Types
@@ -22,6 +22,7 @@ declare global {
 }
 
 const ACCESS_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
+const GEOAPIFY_KEY = process.env.REACT_APP_GEOAPIFY_KEY;
 
 function RouteBuilder() {
   const [viewState, setViewState] = useState({
@@ -33,14 +34,6 @@ function RouteBuilder() {
   const { route, setSelectedPoints, updateRoute } = useRoute();
   const { selectedPoints } = route;
 
-  // const [points, setPoints] = useState<Point[] | []>([]);
-  // const [curRouteCoordinates, setCurRouteCoordinates] = useState<Position[]>(
-  //   []
-  // );
-  // const [curRouteDistance, setCurRouteDistance] = useState<number | undefined>(
-  //   undefined
-  // );
-
   useEffect(() => {
     localStorage.removeItem('routes');
   }, []);
@@ -51,25 +44,40 @@ function RouteBuilder() {
 
       axios
         .get(
-          `https://api.mapbox.com/directions/v5/mapbox/walking/${formattedPoints}?geometries=geojson&access_token=${ACCESS_TOKEN}`
+          `https://api.geoapify.com/v1/routing?waypoints=${formattedPoints}&mode=walk&details=elevation&units=imperial&apiKey=${GEOAPIFY_KEY}`
         )
-        .then((res) => {
-          console.log('res is', res);
-          const { coordinates } = res.data.routes[0].geometry;
-          const { distance } = res.data.routes[0];
+        .then(({ data }) => {
+          console.log('data is', data);
+          let { coordinates } = data.features[0].geometry;
+          const { distance } = data.features[0].properties;
+          let { legs } = data.features[0].properties;
 
-          const distanceInMiles = distance * 0.000621371192;
-          const roundedDistance = Math.round(distanceInMiles * 100) / 100;
+          let elevationPoints: number[] = [];
+          legs.forEach((leg: any) => {
+            elevationPoints.push(leg.elevation);
+          });
+
+          // Flatten arrays
+          coordinates = coordinates.flat(1);
+          elevationPoints = elevationPoints.flat(1);
+
+          // Convert elevation points to ft
+          elevationPoints = elevationPoints.map(
+            (point: number) => point * 3.28084
+          );
+          const elevationGainAndLoss =
+            calculateElevationGainAndLoss(elevationPoints);
+          const roundedDistance = Math.round(distance * 100) / 100;
 
           const newRoute: RouteType = {
             distance: roundedDistance,
             coordinates: coordinates,
             selectedPoints: points,
-            elevation: route.elevation,
+            elevationPoints,
+            elevationGainAndLoss,
           };
 
           // Update local storage cache
-
           const cachedRoute = JSON.parse(
             localStorage.getItem('routes') as string
           );
@@ -84,7 +92,11 @@ function RouteBuilder() {
         distance: 0,
         coordinates: [],
         selectedPoints: points,
-        elevation: 0,
+        elevationPoints: [],
+        elevationGainAndLoss: {
+          gain: 0,
+          loss: 0,
+        },
       };
 
       const asJSON = JSON.stringify([newRoute]);
@@ -98,7 +110,6 @@ function RouteBuilder() {
   };
 
   const onClick = (event: MapLayerMouseEvent) => {
-    console.log('event is', event);
     const { lat, lng } = event.lngLat;
     const point = {
       lat,

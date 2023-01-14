@@ -7,6 +7,7 @@ import {
   IconButton,
   Button,
   Heading,
+  Tooltip,
 } from '@chakra-ui/react';
 import { AddressAutofill } from '@mapbox/search-js-react';
 import { FaMountain } from 'react-icons/fa';
@@ -36,8 +37,12 @@ function Main() {
     const emptyRoute: RouteType = {
       coordinates: [],
       distance: 0,
-      elevation: 0,
+      elevationPoints: [],
       selectedPoints: [],
+      elevationGainAndLoss: {
+        gain: 0,
+        loss: 0,
+      },
     };
     localStorage.removeItem('routes');
     updateRoute(emptyRoute);
@@ -49,8 +54,12 @@ function Main() {
     const newRoute: RouteType = {
       coordinates: prevRoute?.coordinates ?? [],
       distance: prevRoute?.distance ?? 0,
-      elevation: prevRoute?.elevation ?? 0,
+      elevationPoints: prevRoute?.elevation ?? [],
       selectedPoints: prevRoute?.selectedPoints ?? [],
+      elevationGainAndLoss: prevRoute?.elevationGainAndLoss ?? {
+        gain: 0,
+        loss: 0,
+      },
     };
 
     updateRoute(newRoute);
@@ -110,13 +119,16 @@ function Main() {
               mr="50px"
               mt="10px"
             >
-              <IconButton
-                aria-label="icon"
-                icon={<FaUndo />}
-                size="md"
-                onClick={removeLastPoint}
-                disabled={route.selectedPoints.length < 1}
-              />
+              <Tooltip label="Remove last point">
+                <IconButton
+                  aria-label="icon"
+                  icon={<FaUndo />}
+                  size="md"
+                  onClick={removeLastPoint}
+                  disabled={route.selectedPoints.length < 1}
+                />
+              </Tooltip>
+
               <Button variant="solid" size="md" onClick={clearRoute}>
                 Clear Route
               </Button>
@@ -141,24 +153,31 @@ function Main() {
             right={2}
             borderRadius="5px"
           >
-            <Flex
-              direction="column"
-              padding={2}
-              alignItems="center"
-              justifyContent="center"
-              cursor="pointer"
-              _hover={{ background: 'gray.200' }}
-              borderBottomLeftRadius="5px"
-              borderTopLeftRadius="5px"
-              onClick={toggleElevationProfile}
-            >
-              <FaMountain />
-              <Heading size="xs">View</Heading>
-              <Heading size="xs">Elevation</Heading>
-            </Flex>
+            <Tooltip label="View Elevation Profile" placement="top">
+              <Flex
+                direction="column"
+                padding={2}
+                alignItems="center"
+                justifyContent="center"
+                cursor="pointer"
+                _hover={{ background: 'gray.200' }}
+                borderBottomLeftRadius="5px"
+                borderTopLeftRadius="5px"
+                onClick={toggleElevationProfile}
+              >
+                <FaMountain />
+                <Heading size="xs">View</Heading>
+                <Heading size="xs">Elevation</Heading>
+              </Flex>
+            </Tooltip>
+
             <Flex direction="column" padding={2}>
-              <Heading size="md">50 ft gain</Heading>
-              <Heading size="md">50 ft loss</Heading>
+              <Heading size="md">
+                {route.elevationGainAndLoss.gain} ft of gain
+              </Heading>
+              <Heading size="md">
+                {route.elevationGainAndLoss.loss} ft of loss
+              </Heading>
             </Flex>
           </Flex>
         </Box>

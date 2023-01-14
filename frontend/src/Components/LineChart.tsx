@@ -3,6 +3,7 @@ import React from 'react';
 import Plot from 'react-plotly.js';
 
 // Relative Dependencies
+import { useRoute } from '../Context/RouteProvider';
 
 // Types
 type LineChartProps = {
@@ -11,17 +12,31 @@ type LineChartProps = {
 
 function LineChart(props: LineChartProps) {
   const { containerRef } = props;
+  const { route } = useRoute();
+
   const containerWidth = containerRef.current?.clientWidth;
+
+  const yPoints = route.elevationPoints;
+  const numXPoints = route.elevationPoints.length;
+  const xInterval = route.distance / (numXPoints - 2);
+  let xPoints = [0];
+
+  for (let i = 1; i <= numXPoints; i++) {
+    xPoints.push(i * xInterval);
+  }
 
   return (
     <Plot
       data={[
         {
-          x: [1, 2, 3],
-          y: [2, 6, 3],
+          x: xPoints,
+          y: yPoints,
           type: 'scatter',
-          mode: 'lines+markers',
-          marker: { color: 'red' },
+          mode: 'lines',
+          marker: { color: 'blue', size: 20 },
+          line: {
+            color: 'red',
+          },
         },
       ]}
       config={{
