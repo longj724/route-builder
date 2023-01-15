@@ -38,9 +38,11 @@ function RouteBuilder() {
     localStorage.removeItem('routes');
   }, []);
 
-  const createRoute = (points: Point[]) => {
-    if (points.length > 1) {
-      const formattedPoints = formatPoints(points);
+  const createRoute = async (point: Point) => {
+    let newPoints = [...selectedPoints, point];
+
+    if (newPoints.length > 1) {
+      const formattedPoints = formatPoints(newPoints);
 
       axios
         .get(
@@ -69,10 +71,24 @@ function RouteBuilder() {
             calculateElevationGainAndLoss(elevationPoints);
           const roundedDistance = Math.round(distance * 100) / 100;
 
+          // Update first and last point
+          const newFirstPoint: Point = {
+            lat: coordinates[0][1],
+            lng: coordinates[0][0],
+          };
+
+          const newLastPoint: Point = {
+            lat: coordinates[coordinates.length - 1][1],
+            lng: coordinates[coordinates.length - 1][0],
+          };
+
+          newPoints[0] = newFirstPoint;
+          newPoints[newPoints.length - 1] = newLastPoint;
+
           const newRoute: RouteType = {
             distance: roundedDistance,
             coordinates: coordinates,
-            selectedPoints: points,
+            selectedPoints: newPoints,
             elevationPoints,
             elevationGainAndLoss,
           };
@@ -91,7 +107,7 @@ function RouteBuilder() {
       const newRoute: RouteType = {
         distance: 0,
         coordinates: [],
-        selectedPoints: points,
+        selectedPoints: newPoints,
         elevationPoints: [],
         elevationGainAndLoss: {
           gain: 0,
@@ -101,7 +117,7 @@ function RouteBuilder() {
 
       const asJSON = JSON.stringify([newRoute]);
       localStorage.setItem('routes', asJSON);
-      setSelectedPoints(points);
+      setSelectedPoints(newPoints);
     }
   };
 
@@ -109,21 +125,20 @@ function RouteBuilder() {
     setViewState(event.viewState);
   };
 
-  const onClick = (event: MapLayerMouseEvent) => {
+  const onClickMap = (event: MapLayerMouseEvent) => {
     const { lat, lng } = event.lngLat;
     const point = {
       lat,
       lng,
     };
-    const newPoints = [...selectedPoints, point];
-    createRoute(newPoints);
+    createRoute(point);
   };
 
   return (
     <Map
       {...viewState}
       onMove={onMove}
-      onClick={onClick}
+      onClick={onClickMap}
       mapStyle="mapbox://styles/mapbox/streets-v9"
       mapboxAccessToken={ACCESS_TOKEN}
     >

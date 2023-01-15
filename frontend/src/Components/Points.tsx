@@ -17,7 +17,12 @@ function Points(): ReactElement {
   return (
     <>
       {selectedPoints.map(({ lat, lng }) => (
-        <Marker latitude={lat} longitude={lng} anchor="bottom" />
+        <Marker
+          latitude={lat}
+          longitude={lng}
+          anchor="center"
+          key={lat.toString() + lng.toString()}
+        />
       ))}
     </>
   );

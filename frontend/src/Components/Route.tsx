@@ -12,7 +12,7 @@ function Route(): ReactElement {
     id: 'line',
     type: 'line',
     layout: {
-      'line-cap': 'butt',
+      'line-cap': 'round',
     },
     paint: {
       'line-width': 5,
