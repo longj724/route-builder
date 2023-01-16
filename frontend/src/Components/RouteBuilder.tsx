@@ -21,18 +21,31 @@ declare global {
   }
 }
 
+type RouteBuilderProps = {
+  mapCenter: Point;
+};
+
 const ACCESS_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 const GEOAPIFY_KEY = process.env.REACT_APP_GEOAPIFY_KEY;
 
-function RouteBuilder() {
+function RouteBuilder(props: RouteBuilderProps) {
+  const { mapCenter } = props;
   const [viewState, setViewState] = useState({
-    longitude: -100,
-    latitude: 40,
-    zoom: 3.5,
+    longitude: mapCenter.lng,
+    latitude: mapCenter.lat,
+    zoom: 14,
   });
 
   const { route, setSelectedPoints, updateRoute } = useRoute();
   const { selectedPoints } = route;
+
+  useEffect(() => {
+    setViewState({
+      longitude: mapCenter.lng,
+      latitude: mapCenter.lat,
+      zoom: 15,
+    });
+  }, [mapCenter]);
 
   useEffect(() => {
     localStorage.removeItem('routes');

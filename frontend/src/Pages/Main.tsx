@@ -1,5 +1,5 @@
 // External Dependencies
-import { useState } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Flex,
@@ -17,10 +17,15 @@ import { FaUndo } from 'react-icons/fa';
 import RouteBuilder from '../Components/RouteBuilder';
 import { useRoute, RouteType } from '../Context/RouteProvider';
 import ElevationProfile from '../Components/ElevationProfile';
+import { Point } from '../Components/Points';
 
 const ACCESS_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN as string;
 
 function Main() {
+  const [mapCenter, setMapCenter] = useState<Point>({
+    lat: 40.712776,
+    lng: -74.005974,
+  });
   const [showElevationProfile, setShowElevationProfile] = useState(false);
   const { route, updateRoute } = useRoute();
 
@@ -69,6 +74,16 @@ function Main() {
     setShowElevationProfile(!showElevationProfile);
   };
 
+  const selectAddress = (event: any) => {
+    const { coordinates } = event.features[0].geometry;
+
+    const newMapCenter: Point = {
+      lat: coordinates[1],
+      lng: coordinates[0],
+    };
+    setMapCenter(newMapCenter);
+  };
+
   return (
     <Flex width="100vw" height="100vh" direction="column">
       <Flex
@@ -86,13 +101,9 @@ function Main() {
           </Button>
         </Flex>
       </Flex>
-      <Flex
-        height={showElevationProfile ? '65%' : '100%'}
-        width="100%"
-        // direction="column"
-      >
+      <Flex height={showElevationProfile ? '65%' : '100%'} width="100%">
         <Box width="100%" position="relative">
-          <RouteBuilder />
+          <RouteBuilder mapCenter={mapCenter} />
           <Flex
             justifyContent="space-between"
             alignItems="center"
@@ -100,14 +111,17 @@ function Main() {
             top="0"
             width="100%"
           >
-            <AddressAutofill accessToken={ACCESS_TOKEN}>
+            <AddressAutofill
+              accessToken={ACCESS_TOKEN}
+              browserAutofillEnabled={false}
+              onRetrieve={selectAddress}
+            >
               <Input
                 height="30px"
                 color="black"
                 backgroundColor="white"
                 ml={2}
                 placeholder="Search for address"
-                // autoComplete="street-address"
                 type="text"
                 name="address"
               />
