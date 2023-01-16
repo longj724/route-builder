@@ -16,13 +16,14 @@ function LineChart(props: LineChartProps) {
 
   const containerWidth = containerRef.current?.clientWidth;
 
-  const yPoints = route.elevationPoints;
+  const yPoints = route.elevationPoints.map((point) => Math.round(point));
   const numXPoints = route.elevationPoints.length;
   const xInterval = route.distance / (numXPoints - 2);
   let xPoints = [0];
 
   for (let i = 1; i <= numXPoints; i++) {
-    xPoints.push(i * xInterval);
+    const roundedInterval = Math.round(i * xInterval * 100) / 100;
+    xPoints.push(roundedInterval);
   }
 
   return (
@@ -33,7 +34,6 @@ function LineChart(props: LineChartProps) {
           y: yPoints,
           type: 'scatter',
           mode: 'lines',
-          marker: { color: 'blue', size: 20 },
           line: {
             color: 'red',
           },
@@ -53,6 +53,9 @@ function LineChart(props: LineChartProps) {
         yaxis: {
           title: 'Elevation',
           ticksuffix: ' ft',
+        },
+        hoverlabel: {
+          bgcolor: '#E2E8F0',
         },
       }}
       style={{ width: '100%' }}
