@@ -1,6 +1,7 @@
 // External Dependencies
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
+  Avatar,
   Box,
   Flex,
   Input,
@@ -8,6 +9,12 @@ import {
   Button,
   Heading,
   Tooltip,
+  useDisclosure,
+  MenuList,
+  MenuButton,
+  MenuItem,
+  Menu,
+  MenuGroup,
 } from '@chakra-ui/react';
 import { AddressAutofill } from '@mapbox/search-js-react';
 import { FaMountain } from 'react-icons/fa';
@@ -18,6 +25,8 @@ import RouteBuilder from '../Components/RouteBuilder';
 import { useRoute, RouteType } from '../Context/RouteProvider';
 import ElevationProfile from '../Components/ElevationProfile';
 import { Point } from '../Components/Points';
+import LoginModal from '../Components/LoginModal';
+import { auth, signOutOfProfile } from '../Firebase';
 
 const ACCESS_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN as string;
 
@@ -27,7 +36,11 @@ function Main() {
     lng: -74.005974,
   });
   const [showElevationProfile, setShowElevationProfile] = useState(false);
+  const [showRoutesPanel, setShowRoutesPanel] = useState(false);
+  const [user, setUser] = useState(auth.currentUser);
+
   const { route, updateRoute } = useRoute();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const getPrevRoute = () => {
     const routes = JSON.parse(localStorage.getItem('routes') as string);
@@ -84,6 +97,14 @@ function Main() {
     setMapCenter(newMapCenter);
   };
 
+  const logout = async () => {
+    const signOutSuccessful = await signOutOfProfile();
+    if (signOutSuccessful) {
+      if (showRoutesPanel) setShowRoutesPanel(false);
+      setUser(null);
+    }
+  };
+
   return (
     <Flex width="100vw" height="100vh" direction="column">
       <Flex
@@ -93,13 +114,37 @@ function Main() {
         backgroundColor="#112336"
       >
         <Flex gap="8px" mr="10px">
-          <Button variant="solid" size="md">
-            Login
-          </Button>
-          <Button variant="solid" size="md">
-            Sign Up
-          </Button>
+          {user === null ? (
+            <Button variant="solid" size="sm" onClick={onOpen}>
+              Login
+            </Button>
+          ) : (
+            <Flex gap={3} alignItems="center">
+              <Button variant="solid" size="sm" onClick={logout}>
+                Logout
+              </Button>
+              <Menu>
+                <MenuButton
+                  as={Avatar}
+                  colorScheme="pink"
+                  _hover={{ cursor: 'pointer' }}
+                  height="40px"
+                  width="40px"
+                />
+                <MenuList>
+                  <MenuGroup title="Profile">
+                    <MenuItem
+                      onClick={() => setShowRoutesPanel(!showRoutesPanel)}
+                    >
+                      My Routes
+                    </MenuItem>
+                  </MenuGroup>
+                </MenuList>
+              </Menu>
+            </Flex>
+          )}
         </Flex>
+        <LoginModal onClose={onClose} isOpen={isOpen} setUser={setUser} />
       </Flex>
       <Flex height={showElevationProfile ? '65%' : '100%'} width="100%">
         <Box width="100%" position="relative">
@@ -130,7 +175,7 @@ function Main() {
               justifyContent="center"
               alignItems="space-between"
               gap="8px"
-              mr="50px"
+              mr={2}
               mt="10px"
             >
               <Tooltip label="Remove last point">
@@ -140,10 +185,16 @@ function Main() {
                   size="md"
                   onClick={removeLastPoint}
                   disabled={route.selectedPoints.length < 1}
+                  colorScheme="blue"
                 />
               </Tooltip>
 
-              <Button variant="solid" size="md" onClick={clearRoute}>
+              <Button
+                variant="solid"
+                size="md"
+                onClick={clearRoute}
+                colorScheme="blue"
+              >
                 Clear Route
               </Button>
             </Flex>
@@ -195,16 +246,22 @@ function Main() {
             </Flex>
           </Flex>
         </Box>
-        {/* <Flex width="25%" flexDirection="column">
-          <Heading size="xl" textAlign="center">
-            My Routes
-          </Heading>
+        {showRoutesPanel && (
           <Flex
+            width="25%"
             flexDirection="column"
-            justifyContent="center"
-            alignItems="center"
-          ></Flex>
-        </Flex> */}
+            borderBottom="1px solid gray"
+          >
+            <Heading size="xl" textAlign="center" mt={2}>
+              My Routes
+            </Heading>
+            <Flex
+              flexDirection="column"
+              justifyContent="center"
+              alignItems="center"
+            ></Flex>
+          </Flex>
+        )}
       </Flex>
       {showElevationProfile && <ElevationProfile />}
     </Flex>

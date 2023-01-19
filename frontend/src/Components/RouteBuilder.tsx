@@ -1,10 +1,6 @@
 // External Dependencies
 import { useEffect, useState } from 'react';
-import Map, {
-  GeolocateControl,
-  MapLayerMouseEvent,
-  ViewStateChangeEvent,
-} from 'react-map-gl';
+import Map, { MapLayerMouseEvent, ViewStateChangeEvent } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import axios from 'axios';
 
@@ -157,10 +153,6 @@ function RouteBuilder(props: RouteBuilderProps) {
     >
       <Points />
       <Route />
-      <GeolocateControl
-        positionOptions={{ enableHighAccuracy: true }}
-        trackUserLocation={true}
-      />
     </Map>
   );
 }
