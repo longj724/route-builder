@@ -27,6 +27,7 @@ import ElevationProfile from '../Components/ElevationProfile';
 import { Point } from '../Components/Points';
 import LoginModal from '../Components/LoginModal';
 import { auth, signOutOfProfile } from '../Firebase';
+import MyRoutes from '../Components/MyRoutes';
 
 const ACCESS_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN as string;
 
@@ -259,7 +260,9 @@ function Main() {
               flexDirection="column"
               justifyContent="center"
               alignItems="center"
-            ></Flex>
+            >
+              <MyRoutes />
+            </Flex>
           </Flex>
         )}
       </Flex>

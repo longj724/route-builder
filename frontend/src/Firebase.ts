@@ -6,6 +6,7 @@ import {
   signInWithPopup,
   signOut,
 } from 'firebase/auth';
+import { getFirestore, getDoc, doc, setDoc } from 'firebase/firestore/lite';
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -20,10 +21,23 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
+const db = getFirestore(app);
 export const provider = new GoogleAuthProvider();
 
 export const signInWithGoogle = async (): Promise<boolean> => {
   const result = await signInWithPopup(auth, provider);
+
+  const userDoc = doc(db, `users/${result.user?.uid}`);
+  const userSnapshot = await getDoc(userDoc);
+
+  if (!userSnapshot.exists()) {
+    const userDetails = {
+      displayName: result?.user.displayName,
+    };
+
+    setDoc(userDoc, userDetails);
+  }
+
   return result.user !== null;
 };
 
