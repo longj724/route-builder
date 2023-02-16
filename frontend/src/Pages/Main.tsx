@@ -3,6 +3,7 @@ import { useState } from 'react';
 import {
   Avatar,
   Box,
+  CloseButton,
   Flex,
   Input,
   IconButton,
@@ -17,8 +18,7 @@ import {
   MenuGroup,
 } from '@chakra-ui/react';
 import { AddressAutofill } from '@mapbox/search-js-react';
-import { FaMountain } from 'react-icons/fa';
-import { FaUndo } from 'react-icons/fa';
+import { FaMountain, FaUndo } from 'react-icons/fa';
 
 // Relative Dependencies
 import RouteBuilder from '../Components/RouteBuilder';
@@ -198,6 +198,16 @@ function Main() {
               >
                 Clear Route
               </Button>
+              {user !== null && (
+                <Button
+                  variant="solid"
+                  size="md"
+                  colorScheme="blue"
+                  onClick={() => setShowRoutesPanel(!showRoutesPanel)}
+                >
+                  My Routes
+                </Button>
+              )}
             </Flex>
           </Flex>
           <Box
@@ -250,12 +260,23 @@ function Main() {
         {showRoutesPanel && (
           <Flex
             width="25%"
+            minWidth="300px"
             flexDirection="column"
             borderBottom="1px solid gray"
           >
-            <Heading size="xl" textAlign="center" mt={2}>
-              My Routes
-            </Heading>
+            <Flex justifyContent="center">
+              <Heading size="xl" textAlign="center" marginLeft="auto">
+                My Routes
+              </Heading>
+              <CloseButton
+                aria-label="icon"
+                onClick={() => setShowRoutesPanel(false)}
+                alignSelf="center"
+                marginLeft="auto"
+                marginRight={2}
+                size="sm"
+              />
+            </Flex>
             <Flex
               flexDirection="column"
               justifyContent="center"
