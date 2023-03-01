@@ -7,7 +7,7 @@ import axios from 'axios';
 // Relative Dependencies
 import Route from './Route';
 import Points, { Point } from './Points';
-import { calculateElevationGainAndLoss, formatPoints } from '../utils/utils';
+import { calculateElevationGainAndLoss, formatPoints } from '../Utils/utils';
 import { useRoute, RouteType } from '../Context/RouteProvider';
 
 // Types
@@ -58,7 +58,6 @@ function RouteBuilder(props: RouteBuilderProps) {
           `https://api.geoapify.com/v1/routing?waypoints=${formattedPoints}&mode=walk&details=elevation&units=imperial&apiKey=${GEOAPIFY_KEY}`
         )
         .then(({ data }) => {
-          console.log('data is', data);
           let { coordinates } = data.features[0].geometry;
           const { distance } = data.features[0].properties;
           let { legs } = data.features[0].properties;

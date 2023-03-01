@@ -3,8 +3,10 @@ import { initializeApp } from 'firebase/app';
 import {
   getAuth,
   GoogleAuthProvider,
+  browserSessionPersistence,
   signInWithPopup,
   signOut,
+  setPersistence,
 } from 'firebase/auth';
 import { getFirestore, getDoc, doc, setDoc } from 'firebase/firestore/lite';
 
@@ -21,10 +23,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
-const db = getFirestore(app);
-export const provider = new GoogleAuthProvider();
+export const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
 
 export const signInWithGoogle = async (): Promise<boolean> => {
+  await setPersistence(auth, browserSessionPersistence);
   const result = await signInWithPopup(auth, provider);
 
   const userDoc = doc(db, `users/${result.user?.uid}`);

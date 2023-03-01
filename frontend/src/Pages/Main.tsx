@@ -1,5 +1,5 @@
 // External Dependencies
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Avatar,
   Box,
@@ -16,9 +16,11 @@ import {
   MenuItem,
   Menu,
   MenuGroup,
+  calc,
 } from '@chakra-ui/react';
 import { AddressAutofill } from '@mapbox/search-js-react';
-import { FaMountain, FaUndo } from 'react-icons/fa';
+import { FaMountain, FaUndo, FaSave } from 'react-icons/fa';
+import { onAuthStateChanged } from 'firebase/auth';
 
 // Relative Dependencies
 import RouteBuilder from '../Components/RouteBuilder';
@@ -28,6 +30,7 @@ import { Point } from '../Components/Points';
 import LoginModal from '../Components/LoginModal';
 import { auth, signOutOfProfile } from '../Firebase';
 import MyRoutes from '../Components/MyRoutes';
+import { createOrUpdateRoute } from '../Utils/dbOperations';
 
 const ACCESS_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN as string;
 
@@ -39,9 +42,18 @@ function Main() {
   const [showElevationProfile, setShowElevationProfile] = useState(false);
   const [showRoutesPanel, setShowRoutesPanel] = useState(false);
   const [user, setUser] = useState(auth.currentUser);
+  const [selectedRouteID, setSelectedRouteID] = useState('');
 
   const { route, updateRoute } = useRoute();
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      }
+    });
+  }, []);
 
   const getPrevRoute = () => {
     const routes = JSON.parse(localStorage.getItem('routes') as string);
@@ -98,12 +110,18 @@ function Main() {
     setMapCenter(newMapCenter);
   };
 
+  console.log('auth is', auth);
+
   const logout = async () => {
     const signOutSuccessful = await signOutOfProfile();
     if (signOutSuccessful) {
       if (showRoutesPanel) setShowRoutesPanel(false);
       setUser(null);
     }
+  };
+
+  const saveRoute = async () => {
+    await createOrUpdateRoute('sample route name', route, '');
   };
 
   return (
@@ -189,6 +207,18 @@ function Main() {
                   colorScheme="blue"
                 />
               </Tooltip>
+              {user !== null && (
+                <Tooltip label="Save Route">
+                  <IconButton
+                    aria-label="icon"
+                    colorScheme="blue"
+                    disabled={route.selectedPoints.length < 1}
+                    icon={<FaSave />}
+                    onClick={saveRoute}
+                    size="md"
+                  />
+                </Tooltip>
+              )}
 
               <Button
                 variant="solid"
@@ -262,7 +292,8 @@ function Main() {
             width="25%"
             minWidth="300px"
             flexDirection="column"
-            borderBottom="1px solid gray"
+            overflow="scroll"
+            height="calc(100vh - 70px)"
           >
             <Flex justifyContent="center">
               <Heading size="xl" textAlign="center" marginLeft="auto">

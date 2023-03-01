@@ -4,7 +4,7 @@ import { Position } from 'geojson';
 
 // Relative Dependencies
 import { Point } from '../Components/Points';
-import { ElevationGainAndLoss } from '../utils/utils';
+import { ElevationGainAndLoss } from '../Utils/utils';
 
 // Types
 type RouteProviderProps = {
