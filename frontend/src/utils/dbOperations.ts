@@ -1,14 +1,14 @@
 // External Dependencies
 import {
-  query,
-  where,
-  collection,
   addDoc,
-  updateDoc,
+  collection,
+  deleteDoc,
   doc,
-  getDocs,
   DocumentData,
-  DocumentReference,
+  getDocs,
+  query,
+  updateDoc,
+  where,
 } from 'firebase/firestore/lite';
 
 // Relative Dependencies
@@ -92,4 +92,8 @@ export const getAllRoutes = async (): Promise<DocumentData[]> => {
   });
 
   return queriedRoutes;
+};
+
+export const deleteRoute = async (routeId: string) => {
+  await deleteDoc(doc(db, 'routes', routeId));
 };

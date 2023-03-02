@@ -1,24 +1,30 @@
 // External Dependencies
 import {
+  Button,
+  ButtonGroup,
   Card,
   CardBody,
-  Image,
-  Stack,
-  Heading,
-  ButtonGroup,
   CardFooter,
   Divider,
-  Button,
+  Heading,
+  Image,
+  Stack,
 } from '@chakra-ui/react';
 import { useCallback, useEffect, useState } from 'react';
 import { DocumentData } from 'firebase/firestore/lite';
 
 // Relative Dependencies
 import { auth } from '../Firebase';
-import { getAllRoutes } from '../Utils/dbOperations';
+import { deleteRoute, getAllRoutes } from '../Utils/dbOperations';
 import { useRoute, RouteType } from '../Context/RouteProvider';
 
-function MyRoutes() {
+type MyRouteProps = {
+  clearRoute: () => void;
+};
+
+function MyRoutes(props: MyRouteProps) {
+  const { clearRoute } = props;
+
   const [userRoutes, setUserRoutes] = useState<DocumentData[] | null>(null);
   const { updateRoute } = useRoute();
 
@@ -51,6 +57,11 @@ function MyRoutes() {
     updateRoute(routeData);
   };
 
+  const onDeleteRoute = async (routeId: string) => {
+    await deleteRoute(routeId);
+    clearRoute();
+  };
+
   const userRouteComponents = userRoutes?.map((route) => (
     <Card maxW="sm" key={route.id}>
       <CardBody>
@@ -78,7 +89,11 @@ function MyRoutes() {
           >
             View
           </Button>
-          <Button variant="ghost" colorScheme="blue">
+          <Button
+            variant="ghost"
+            colorScheme="blue"
+            onClick={() => onDeleteRoute(route.id)}
+          >
             Delete
           </Button>
         </ButtonGroup>

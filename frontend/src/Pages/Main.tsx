@@ -16,7 +16,6 @@ import {
   MenuItem,
   Menu,
   MenuGroup,
-  calc,
 } from '@chakra-ui/react';
 import { AddressAutofill } from '@mapbox/search-js-react';
 import { FaMountain, FaUndo, FaSave } from 'react-icons/fa';
@@ -313,7 +312,7 @@ function Main() {
               justifyContent="center"
               alignItems="center"
             >
-              <MyRoutes />
+              <MyRoutes clearRoute={clearRoute} />
             </Flex>
           </Flex>
         )}
