@@ -30,6 +30,7 @@ import LoginModal from '../Components/LoginModal';
 import { auth, signOutOfProfile } from '../Firebase';
 import MyRoutes from '../Components/MyRoutes';
 import { createOrUpdateRoute } from '../Utils/dbOperations';
+import { useCreateRoute } from '../Hooks/useCreateRoute';
 
 const ACCESS_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN as string;
 
@@ -43,6 +44,7 @@ function Main() {
   const [user, setUser] = useState(auth.currentUser);
   const [selectedRouteID, setSelectedRouteID] = useState('');
 
+  const { createRouteWithoutLastPoint } = useCreateRoute();
   const { route, updateRoute } = useRoute();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -79,20 +81,25 @@ function Main() {
   };
 
   const removeLastPoint = () => {
-    const prevRoute = getPrevRoute();
+    // Check if route is cached
+    if (localStorage.getItem('routes')) {
+      const prevRoute = getPrevRoute();
 
-    const newRoute: RouteType = {
-      coordinates: prevRoute?.coordinates ?? [],
-      distance: prevRoute?.distance ?? 0,
-      elevationPoints: prevRoute?.elevation ?? [],
-      selectedPoints: prevRoute?.selectedPoints ?? [],
-      elevationGainAndLoss: prevRoute?.elevationGainAndLoss ?? {
-        gain: 0,
-        loss: 0,
-      },
-    };
+      const newRoute: RouteType = {
+        coordinates: prevRoute?.coordinates ?? [],
+        distance: prevRoute?.distance ?? 0,
+        elevationPoints: prevRoute?.elevation ?? [],
+        selectedPoints: prevRoute?.selectedPoints ?? [],
+        elevationGainAndLoss: prevRoute?.elevationGainAndLoss ?? {
+          gain: 0,
+          loss: 0,
+        },
+      };
 
-    updateRoute(newRoute);
+      updateRoute(newRoute);
+    } else {
+      createRouteWithoutLastPoint();
+    }
   };
 
   const toggleElevationProfile = () => {
@@ -109,10 +116,8 @@ function Main() {
     setMapCenter(newMapCenter);
   };
 
-  console.log('auth is', auth);
-
   const logout = async () => {
-    const signOutSuccessful = await signOutOfProfile();
+    const signOutSuccessful: boolean = await signOutOfProfile();
     if (signOutSuccessful) {
       if (showRoutesPanel) setShowRoutesPanel(false);
       setUser(null);

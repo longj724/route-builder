@@ -40,6 +40,7 @@ function MyRoutes(props: MyRouteProps) {
   }, [loadRoutes]);
 
   const selectRoute = (route: DocumentData) => {
+    localStorage.removeItem('routes');
     const coordinates = route.coordinates.map(
       (coord: { lat: number; lng: number }) => [coord.lng, coord.lat]
     );
