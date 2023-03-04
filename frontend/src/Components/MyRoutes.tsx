@@ -9,6 +9,7 @@ import {
   Heading,
   Image,
   Stack,
+  useToast,
 } from '@chakra-ui/react';
 import { useCallback, useEffect, useState } from 'react';
 import { DocumentData } from 'firebase/firestore/lite';
@@ -20,11 +21,13 @@ import { useRoute, RouteType } from '../Context/RouteProvider';
 
 type MyRouteProps = {
   clearRoute: () => void;
+  setSelectedRouteID: React.Dispatch<React.SetStateAction<string>>;
 };
 
 function MyRoutes(props: MyRouteProps) {
-  const { clearRoute } = props;
+  const { clearRoute, setSelectedRouteID } = props;
 
+  const toast = useToast();
   const [userRoutes, setUserRoutes] = useState<DocumentData[] | null>(null);
   const { updateRoute } = useRoute();
 
@@ -58,9 +61,32 @@ function MyRoutes(props: MyRouteProps) {
     updateRoute(routeData);
   };
 
+  const onViewRoute = (route: DocumentData) => {
+    selectRoute(route);
+    setSelectedRouteID(route.id);
+  };
+
   const onDeleteRoute = async (routeId: string) => {
-    await deleteRoute(routeId);
-    clearRoute();
+    deleteRoute(routeId)
+      .then(() => {
+        clearRoute();
+        toast({
+          title: 'Route Deleted',
+          status: 'success',
+          isClosable: true,
+          duration: 2000,
+          position: 'bottom-left',
+        });
+      })
+      .catch(() => {
+        toast({
+          title: 'Unable to delete route',
+          status: 'error',
+          isClosable: true,
+          duration: 2000,
+          position: 'bottom-left',
+        });
+      });
   };
 
   const userRouteComponents = userRoutes?.map((route) => (
@@ -86,7 +112,7 @@ function MyRoutes(props: MyRouteProps) {
           <Button
             variant="solid"
             colorScheme="blue"
-            onClick={() => selectRoute(route)}
+            onClick={() => onViewRoute(route)}
           >
             View
           </Button>

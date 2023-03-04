@@ -41,7 +41,8 @@ export const createOrUpdateRoute = async (
 
   try {
     if (routeId) {
-      const routeDoc = doc(db, `routes${routeId}`);
+      console.log('trying to update route');
+      const routeDoc = doc(db, `routes/${routeId}`);
       await updateDoc(routeDoc, {
         coordinates: formattedCoordinates,
         distance: distance,

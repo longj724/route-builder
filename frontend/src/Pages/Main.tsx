@@ -16,6 +16,7 @@ import {
   MenuItem,
   Menu,
   MenuGroup,
+  useToast,
 } from '@chakra-ui/react';
 import { AddressAutofill } from '@mapbox/search-js-react';
 import { FaMountain, FaUndo, FaSave } from 'react-icons/fa';
@@ -43,6 +44,8 @@ function Main() {
   const [showRoutesPanel, setShowRoutesPanel] = useState(false);
   const [user, setUser] = useState(auth.currentUser);
   const [selectedRouteID, setSelectedRouteID] = useState('');
+  const [routeName, setRouteName] = useState('');
+  const toast = useToast();
 
   const { createRouteWithoutLastPoint } = useCreateRoute();
   const { route, updateRoute } = useRoute();
@@ -125,7 +128,19 @@ function Main() {
   };
 
   const saveRoute = async () => {
-    await createOrUpdateRoute('sample route name', route, '');
+    const response = await createOrUpdateRoute(
+      'sample route name',
+      route,
+      selectedRouteID
+    );
+    if (response) {
+      toast({
+        title: 'Route Saved',
+        status: 'success',
+        duration: 2000,
+        position: 'bottom-left',
+      });
+    }
   };
 
   return (
@@ -317,7 +332,10 @@ function Main() {
               justifyContent="center"
               alignItems="center"
             >
-              <MyRoutes clearRoute={clearRoute} />
+              <MyRoutes
+                clearRoute={clearRoute}
+                setSelectedRouteID={setSelectedRouteID}
+              />
             </Flex>
           </Flex>
         )}

@@ -14,10 +14,19 @@ export type Point = {
 function Points(): ReactElement {
   const { selectedPoints } = useRoute().route;
 
+  const getMarkerColor = (index: number) => {
+    if (index === 0) {
+      return '#38A169';
+    } else {
+      return '#E53E3E';
+    }
+  };
+
   return (
     <>
-      {selectedPoints.map(({ lat, lng }) => (
+      {selectedPoints.map(({ lat, lng }, index) => (
         <Marker
+          color={getMarkerColor(index)}
           latitude={lat}
           longitude={lng}
           anchor="center"
