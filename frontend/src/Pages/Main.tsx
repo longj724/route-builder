@@ -41,7 +41,10 @@ function Main() {
   const [showElevationProfile, setShowElevationProfile] = useState(false);
   const [showRoutesPanel, setShowRoutesPanel] = useState(false);
   const [user, setUser] = useState(auth.currentUser);
-  const [selectedRouteID, setSelectedRouteID] = useState('');
+  const [lastSelectedPoint, setLastSelectedPoint] = useState<Point | null>(
+    null
+  );
+  const [selectedRouteID, setSelectedRouteID] = useState<string | null>(null);
 
   const { route, updateRoute } = useRoute();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -55,12 +58,12 @@ function Main() {
   }, []);
 
   const getPrevRoute = () => {
-    const routes = JSON.parse(localStorage.getItem('routes') as string);
+    const routes = JSON.parse(localStorage.getItem('selectedPoints') as string);
     routes.pop();
     const asJSON = JSON.stringify(routes);
-    localStorage.setItem('routes', asJSON);
-    const prevRoute = routes[routes.length - 1];
-    return prevRoute;
+    localStorage.setItem('selectedPoints', asJSON);
+    const prevPoint = routes[routes.length - 1];
+    return prevPoint;
   };
 
   const clearRoute = () => {
@@ -76,23 +79,26 @@ function Main() {
     };
     localStorage.removeItem('routes');
     updateRoute(emptyRoute);
+    setSelectedRouteID(null);
   };
 
   const removeLastPoint = () => {
-    const prevRoute = getPrevRoute();
+    const prevPoint = getPrevRoute();
+    console.log('prevPoint is', prevPoint);
+    setLastSelectedPoint(prevPoint);
 
-    const newRoute: RouteType = {
-      coordinates: prevRoute?.coordinates ?? [],
-      distance: prevRoute?.distance ?? 0,
-      elevationPoints: prevRoute?.elevation ?? [],
-      selectedPoints: prevRoute?.selectedPoints ?? [],
-      elevationGainAndLoss: prevRoute?.elevationGainAndLoss ?? {
-        gain: 0,
-        loss: 0,
-      },
-    };
+    // const newRoute: RouteType = {
+    //   coordinates: prevRoute?.coordinates ?? [],
+    //   distance: prevRoute?.distance ?? 0,
+    //   elevationPoints: prevRoute?.elevation ?? [],
+    //   selectedPoints: prevRoute?.selectedPoints ?? [],
+    //   elevationGainAndLoss: prevRoute?.elevationGainAndLoss ?? {
+    //     gain: 0,
+    //     loss: 0,
+    //   },
+    // };
 
-    updateRoute(newRoute);
+    // updateRoute(newRoute);
   };
 
   const toggleElevationProfile = () => {
@@ -108,8 +114,6 @@ function Main() {
     };
     setMapCenter(newMapCenter);
   };
-
-  console.log('auth is', auth);
 
   const logout = async () => {
     const signOutSuccessful = await signOutOfProfile();
@@ -166,7 +170,11 @@ function Main() {
       </Flex>
       <Flex height={showElevationProfile ? '65%' : '100%'} width="100%">
         <Box width="100%" position="relative">
-          <RouteBuilder mapCenter={mapCenter} />
+          <RouteBuilder
+            mapCenter={mapCenter}
+            lastSelectedPoint={lastSelectedPoint}
+            setLastSelectedPoint={setLastSelectedPoint}
+          />
           <Flex
             justifyContent="space-between"
             alignItems="center"
