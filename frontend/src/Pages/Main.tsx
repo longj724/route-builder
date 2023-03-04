@@ -24,12 +24,13 @@ import { onAuthStateChanged } from 'firebase/auth';
 
 // Relative Dependencies
 import RouteBuilder from '../Components/RouteBuilder';
-import { useRoute, RouteType } from '../Context/RouteProvider';
-import ElevationProfile from '../Components/ElevationProfile';
-import { Point } from '../Components/Points';
-import LoginModal from '../Components/LoginModal';
-import { auth, signOutOfProfile } from '../Firebase';
 import MyRoutes from '../Components/MyRoutes';
+import RouteNameModal from '../Components/RouteNameModal';
+import LoginModal from '../Components/LoginModal';
+import ElevationProfile from '../Components/ElevationProfile';
+import { useRoute, RouteType } from '../Context/RouteProvider';
+import { Point } from '../Components/Points';
+import { auth, signOutOfProfile } from '../Firebase';
 import { createOrUpdateRoute } from '../Utils/dbOperations';
 import { useCreateRoute } from '../Hooks/useCreateRoute';
 
@@ -49,7 +50,16 @@ function Main() {
 
   const { createRouteWithoutLastPoint } = useCreateRoute();
   const { route, updateRoute } = useRoute();
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isOpenLoginModal,
+    onOpen: onOpenLoginModal,
+    onClose: onCloseLoginModal,
+  } = useDisclosure();
+  const {
+    isOpen: isOpenNameModal,
+    onOpen: onOpenNameModal,
+    onClose: onCloseNameModal,
+  } = useDisclosure();
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -129,7 +139,7 @@ function Main() {
 
   const saveRoute = async () => {
     const response = await createOrUpdateRoute(
-      'sample route name',
+      routeName,
       route,
       selectedRouteID
     );
@@ -141,6 +151,7 @@ function Main() {
         position: 'bottom-left',
       });
     }
+    onCloseNameModal();
   };
 
   return (
@@ -153,7 +164,7 @@ function Main() {
       >
         <Flex gap="8px" mr="10px">
           {user === null ? (
-            <Button variant="solid" size="sm" onClick={onOpen}>
+            <Button variant="solid" size="sm" onClick={onOpenLoginModal}>
               Login
             </Button>
           ) : (
@@ -182,7 +193,18 @@ function Main() {
             </Flex>
           )}
         </Flex>
-        <LoginModal onClose={onClose} isOpen={isOpen} setUser={setUser} />
+        <LoginModal
+          onClose={onCloseLoginModal}
+          isOpen={isOpenLoginModal}
+          setUser={setUser}
+        />
+        <RouteNameModal
+          isOpen={isOpenNameModal}
+          onClose={onCloseNameModal}
+          routeName={routeName}
+          saveRoute={saveRoute}
+          setRouteName={setRouteName}
+        />
       </Flex>
       <Flex height={showElevationProfile ? '65%' : '100%'} width="100%">
         <Box width="100%" position="relative">
@@ -233,7 +255,7 @@ function Main() {
                     colorScheme="blue"
                     disabled={route.selectedPoints.length < 1}
                     icon={<FaSave />}
-                    onClick={saveRoute}
+                    onClick={onOpenNameModal}
                     size="md"
                   />
                 </Tooltip>
