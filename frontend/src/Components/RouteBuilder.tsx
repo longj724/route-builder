@@ -1,6 +1,10 @@
 // External Dependencies
-import { useEffect, useState } from 'react';
-import Map, { MapLayerMouseEvent, ViewStateChangeEvent } from 'react-map-gl';
+import { forwardRef, useEffect, useState } from 'react';
+import Map, {
+  MapLayerMouseEvent,
+  MapRef,
+  ViewStateChangeEvent,
+} from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 // Relative Dependencies
@@ -21,7 +25,7 @@ type RouteBuilderProps = {
 
 const ACCESS_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
-function RouteBuilder(props: RouteBuilderProps) {
+const RouteBuilder = forwardRef<MapRef, RouteBuilderProps>((props, ref) => {
   const { mapCenter } = props;
   const [viewState, setViewState] = useState({
     longitude: mapCenter.lng,
@@ -58,16 +62,18 @@ function RouteBuilder(props: RouteBuilderProps) {
 
   return (
     <Map
+      ref={ref}
       {...viewState}
       onMove={onMove}
       onClick={onClickMap}
       mapStyle="mapbox://styles/mapbox/streets-v9"
       mapboxAccessToken={ACCESS_TOKEN}
+      preserveDrawingBuffer={true}
     >
       <Points />
       <Route />
     </Map>
   );
-}
+});
 
 export default RouteBuilder;

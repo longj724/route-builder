@@ -1,5 +1,5 @@
 // External Dependencies
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import {
   Avatar,
   Box,
@@ -21,6 +21,7 @@ import {
 import { AddressAutofill } from '@mapbox/search-js-react';
 import { FaMountain, FaUndo, FaSave } from 'react-icons/fa';
 import { onAuthStateChanged } from 'firebase/auth';
+import { MapRef } from 'react-map-gl';
 
 // Relative Dependencies
 import RouteBuilder from '../Components/RouteBuilder';
@@ -31,8 +32,9 @@ import ElevationProfile from '../Components/ElevationProfile';
 import { useRoute, RouteType } from '../Context/RouteProvider';
 import { Point } from '../Components/Points';
 import { auth, signOutOfProfile } from '../Firebase';
-import { createOrUpdateRoute } from '../Utils/dbOperations';
+import { createOrUpdateRoute, uploadRouteImage } from '../Utils/dbOperations';
 import { useCreateRoute } from '../Hooks/useCreateRoute';
+import { useScreenshot } from '../Hooks/useScreenshot';
 
 const ACCESS_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN as string;
 
@@ -46,8 +48,10 @@ function Main() {
   const [user, setUser] = useState(auth.currentUser);
   const [selectedRouteID, setSelectedRouteID] = useState('');
   const [routeName, setRouteName] = useState('');
-  const toast = useToast();
 
+  const mapRef = useRef<MapRef>(null!);
+  const [, takeScreenShot] = useScreenshot();
+  const toast = useToast();
   const { createRouteWithoutLastPoint } = useCreateRoute();
   const { route, updateRoute } = useRoute();
   const {
@@ -138,20 +142,33 @@ function Main() {
   };
 
   const saveRoute = async () => {
-    const response = await createOrUpdateRoute(
-      routeName,
-      route,
-      selectedRouteID
-    );
-    if (response) {
+    // Have to do this to fix weird TypeScript error
+    if (typeof takeScreenShot === 'function') {
+      const base64Image = await takeScreenShot(mapRef.current.getCanvas());
+      const imageURL = await uploadRouteImage(base64Image as string);
+      const response = await createOrUpdateRoute(
+        routeName,
+        route,
+        imageURL,
+        selectedRouteID
+      );
+      if (response) {
+        toast({
+          title: 'Route Saved',
+          status: 'success',
+          duration: 2000,
+          position: 'bottom-left',
+        });
+      }
+      onCloseNameModal();
+    } else {
       toast({
-        title: 'Route Saved',
-        status: 'success',
+        title: 'Error Saving Route',
+        status: 'error',
         duration: 2000,
         position: 'bottom-left',
       });
     }
-    onCloseNameModal();
   };
 
   return (
@@ -181,7 +198,9 @@ function Main() {
                   width="40px"
                 />
                 <MenuList>
-                  <MenuGroup title="Profile">
+                  <MenuGroup
+                    title={`Profile - ${auth?.currentUser?.displayName}`}
+                  >
                     <MenuItem
                       onClick={() => setShowRoutesPanel(!showRoutesPanel)}
                     >
@@ -208,7 +227,7 @@ function Main() {
       </Flex>
       <Flex height={showElevationProfile ? '65%' : '100%'} width="100%">
         <Box width="100%" position="relative">
-          <RouteBuilder mapCenter={mapCenter} />
+          <RouteBuilder mapCenter={mapCenter} ref={mapRef} />
           <Flex
             justifyContent="space-between"
             alignItems="center"

@@ -10,14 +10,16 @@ import {
   updateDoc,
   where,
 } from 'firebase/firestore/lite';
+import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 
 // Relative Dependencies
-import { auth, db } from '../Firebase';
+import { auth, db, storage } from '../Firebase';
 import { RouteType } from '../Context/RouteProvider';
 
 export const createOrUpdateRoute = async (
   name: string,
   route: RouteType,
+  routeImageURL: string,
   routeId?: string
 ): Promise<string> => {
   if (!auth.currentUser) {
@@ -41,7 +43,6 @@ export const createOrUpdateRoute = async (
 
   try {
     if (routeId) {
-      console.log('trying to update route');
       const routeDoc = doc(db, `routes/${routeId}`);
       await updateDoc(routeDoc, {
         coordinates: formattedCoordinates,
@@ -50,6 +51,7 @@ export const createOrUpdateRoute = async (
         elevationPoints: elevationPoints,
         name: name,
         selectedPoints: selectedPoints,
+        routeImage: routeImageURL,
       });
 
       return routeId;
@@ -63,6 +65,7 @@ export const createOrUpdateRoute = async (
       name: name,
       selectedPoints: selectedPoints,
       userID: auth.currentUser.uid,
+      imageURL: routeImageURL,
     });
 
     return routeDoc.id;
@@ -97,4 +100,14 @@ export const getAllRoutes = async (): Promise<DocumentData[]> => {
 
 export const deleteRoute = async (routeId: string) => {
   await deleteDoc(doc(db, 'routes', routeId));
+};
+
+export const uploadRouteImage = async (imageURL: string) => {
+  const imageUID = new Date().valueOf();
+
+  const routesRef = ref(storage, `routes/${imageUID}`);
+
+  await uploadString(routesRef, imageURL, 'data_url');
+
+  return getDownloadURL(routesRef);
 };

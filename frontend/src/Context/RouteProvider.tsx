@@ -55,7 +55,6 @@ function RouteProvider({ children }: RouteProviderProps) {
   };
 
   const setSelectedPoints = (newPoints: Point[]) => {
-    console.log('in context selectedPoints are', newPoints);
     setRoute({
       ...route,
       selectedPoints: newPoints,
@@ -63,7 +62,6 @@ function RouteProvider({ children }: RouteProviderProps) {
   };
 
   const setDistance = (distance: number) => {
-    console.log('in context distance is', distance);
     setRoute({
       ...route,
       distance: distance,

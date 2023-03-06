@@ -8,6 +8,7 @@ import {
   signOut,
   setPersistence,
 } from 'firebase/auth';
+import { getStorage } from 'firebase/storage';
 import { getFirestore, getDoc, doc, setDoc } from 'firebase/firestore/lite';
 
 const firebaseConfig = {
@@ -25,6 +26,7 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
+export const storage = getStorage(app);
 
 export const signInWithGoogle = async (): Promise<boolean> => {
   await setPersistence(auth, browserSessionPersistence);
