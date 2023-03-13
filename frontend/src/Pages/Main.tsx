@@ -29,8 +29,7 @@ import MyRoutes from '../Components/MyRoutes';
 import RouteNameModal from '../Components/RouteNameModal';
 import LoginModal from '../Components/LoginModal';
 import ElevationProfile from '../Components/ElevationProfile';
-import { useRoute, RouteType } from '../Context/RouteProvider';
-import { Point } from '../Components/Points';
+import { useRoute, RouteType, MapViewInfo } from '../Context/RouteProvider';
 import { auth, signOutOfProfile } from '../Firebase';
 import { createOrUpdateRoute, uploadRouteImage } from '../Utils/dbOperations';
 import { useCreateRoute } from '../Hooks/useCreateRoute';
@@ -39,10 +38,6 @@ import { useScreenshot } from '../Hooks/useScreenshot';
 const ACCESS_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN as string;
 
 function Main() {
-  const [mapCenter, setMapCenter] = useState<Point>({
-    lat: 40.712776,
-    lng: -74.005974,
-  });
   const [showElevationProfile, setShowElevationProfile] = useState(false);
   const [showRoutesPanel, setShowRoutesPanel] = useState(false);
   const [user, setUser] = useState(auth.currentUser);
@@ -53,7 +48,7 @@ function Main() {
   const [, takeScreenShot] = useScreenshot();
   const toast = useToast();
   const { createRouteWithoutLastPoint } = useCreateRoute();
-  const { route, updateRoute } = useRoute();
+  const { route, updateRoute, setMapViewInfo } = useRoute();
   const {
     isOpen: isOpenLoginModal,
     onOpen: onOpenLoginModal,
@@ -92,6 +87,7 @@ function Main() {
         gain: 0,
         loss: 0,
       },
+      mapViewInfo: route.mapViewInfo,
     };
     localStorage.removeItem('routes');
     updateRoute(emptyRoute);
@@ -111,6 +107,7 @@ function Main() {
           gain: 0,
           loss: 0,
         },
+        mapViewInfo: route.mapViewInfo,
       };
 
       updateRoute(newRoute);
@@ -126,11 +123,12 @@ function Main() {
   const selectAddress = (event: any) => {
     const { coordinates } = event.features[0].geometry;
 
-    const newMapCenter: Point = {
-      lat: coordinates[1],
-      lng: coordinates[0],
+    const newMapViewInfo: MapViewInfo = {
+      latitude: coordinates[1],
+      longitude: coordinates[0],
+      zoom: 15,
     };
-    setMapCenter(newMapCenter);
+    setMapViewInfo(newMapViewInfo);
   };
 
   const logout = async () => {
@@ -227,7 +225,7 @@ function Main() {
       </Flex>
       <Flex height={showElevationProfile ? '65%' : '100%'} width="100%">
         <Box width="100%" position="relative">
-          <RouteBuilder mapCenter={mapCenter} ref={mapRef} />
+          <RouteBuilder ref={mapRef} />
           <Flex
             justifyContent="space-between"
             alignItems="center"

@@ -67,6 +67,7 @@ export const useCreateRoute = (): {
             selectedPoints: newPoints,
             elevationPoints,
             elevationGainAndLoss,
+            mapViewInfo: route.mapViewInfo,
           };
 
           // Update local storage cache
@@ -91,6 +92,7 @@ export const useCreateRoute = (): {
           gain: 0,
           loss: 0,
         },
+        mapViewInfo: route.mapViewInfo,
       };
 
       const asJSON = JSON.stringify([newRoute]);

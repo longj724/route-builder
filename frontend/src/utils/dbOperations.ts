@@ -27,10 +27,11 @@ export const createOrUpdateRoute = async (
   }
 
   const {
+    coordinates,
     distance,
     elevationGainAndLoss,
     elevationPoints,
-    coordinates,
+    mapViewInfo,
     selectedPoints,
   } = route;
 
@@ -49,9 +50,10 @@ export const createOrUpdateRoute = async (
         distance: distance,
         elevationData: elevationGainAndLoss,
         elevationPoints: elevationPoints,
+        mapViewInfo,
         name: name,
+        imageURL: routeImageURL,
         selectedPoints: selectedPoints,
-        routeImage: routeImageURL,
       });
 
       return routeId;
@@ -62,10 +64,11 @@ export const createOrUpdateRoute = async (
       distance: distance,
       elevationData: elevationGainAndLoss,
       elevationPoints: elevationPoints,
+      imageURL: routeImageURL,
+      mapViewInfo,
       name: name,
       selectedPoints: selectedPoints,
       userID: auth.currentUser.uid,
-      imageURL: routeImageURL,
     });
 
     return routeDoc.id;

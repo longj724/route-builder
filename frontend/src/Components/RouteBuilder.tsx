@@ -1,5 +1,5 @@
 // External Dependencies
-import { forwardRef, useEffect, useState } from 'react';
+import { forwardRef, useEffect } from 'react';
 import Map, {
   MapLayerMouseEvent,
   MapRef,
@@ -9,8 +9,9 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 
 // Relative Dependencies
 import Route from './Route';
-import Points, { Point } from './Points';
+import Points from './Points';
 import { useCreateRoute } from '../Hooks/useCreateRoute';
+import { useRoute } from '../Context/RouteProvider';
 
 // Types
 declare global {
@@ -19,36 +20,24 @@ declare global {
   }
 }
 
-type RouteBuilderProps = {
-  mapCenter: Point;
-};
+type RouteBuilderProps = {};
 
 const ACCESS_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
-const RouteBuilder = forwardRef<MapRef, RouteBuilderProps>((props, ref) => {
-  const { mapCenter } = props;
-  const [viewState, setViewState] = useState({
-    longitude: mapCenter.lng,
-    latitude: mapCenter.lat,
-    zoom: 14,
-  });
-
+const RouteBuilder = forwardRef<MapRef, RouteBuilderProps>((_, ref) => {
+  const { setMapViewInfo, route } = useRoute();
   const { createRouteWithNewPoint } = useCreateRoute();
-
-  useEffect(() => {
-    setViewState({
-      longitude: mapCenter.lng,
-      latitude: mapCenter.lat,
-      zoom: 15,
-    });
-  }, [mapCenter]);
 
   useEffect(() => {
     localStorage.removeItem('routes');
   }, []);
 
   const onMove = (event: ViewStateChangeEvent) => {
-    setViewState(event.viewState);
+    setMapViewInfo({
+      latitude: event.viewState.latitude,
+      longitude: event.viewState.longitude,
+      zoom: event.viewState.zoom,
+    });
   };
 
   const onClickMap = (event: MapLayerMouseEvent) => {
@@ -63,7 +52,7 @@ const RouteBuilder = forwardRef<MapRef, RouteBuilderProps>((props, ref) => {
   return (
     <Map
       ref={ref}
-      {...viewState}
+      {...route.mapViewInfo}
       onMove={onMove}
       onClick={onClickMap}
       mapStyle="mapbox://styles/mapbox/streets-v9"
