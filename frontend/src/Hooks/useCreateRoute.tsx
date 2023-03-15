@@ -6,7 +6,7 @@ import { useRoute, RouteType } from '../Context/RouteProvider';
 import { Point } from '../Components/Points';
 import { calculateElevationGainAndLoss, formatPoints } from '../Utils/utils';
 
-const GEOAPIFY_KEY = process.env.REACT_APP_GEOAPIFY_KEY;
+const GEOAPIFY_KEY = import.meta.env.VITE_GEOAPIFY_KEY;
 
 export const useCreateRoute = (): {
   createRouteWithNewPoint: (newPoint: Point) => void;

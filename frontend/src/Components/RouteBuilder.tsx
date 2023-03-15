@@ -22,7 +22,7 @@ declare global {
 
 type RouteBuilderProps = {};
 
-const ACCESS_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
+const ACCESS_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
 const RouteBuilder = forwardRef<MapRef, RouteBuilderProps>((_, ref) => {
   const { setMapViewInfo, route } = useRoute();

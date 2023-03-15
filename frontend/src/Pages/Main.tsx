@@ -35,7 +35,7 @@ import { createOrUpdateRoute, uploadRouteImage } from '../Utils/dbOperations';
 import { useCreateRoute } from '../Hooks/useCreateRoute';
 import { useScreenshot } from '../Hooks/useScreenshot';
 
-const ACCESS_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN as string;
+const ACCESS_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN as string;
 
 function Main() {
   const [showElevationProfile, setShowElevationProfile] = useState(false);
