@@ -125,8 +125,8 @@ function MyRoutes(props: MyRouteProps) {
             View
           </Button>
           <Button
-            variant="ghost"
-            colorScheme="blue"
+            variant="solid"
+            colorScheme="red"
             onClick={() => onDeleteRoute(route.id)}
           >
             Delete
