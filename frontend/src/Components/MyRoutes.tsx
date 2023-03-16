@@ -75,6 +75,9 @@ function MyRoutes(props: MyRouteProps) {
     deleteRoute(routeId)
       .then(() => {
         clearRoute();
+        const newRoutes =
+          userRoutes?.filter((route) => route.id !== routeId) ?? null;
+        setUserRoutes(newRoutes);
         toast({
           title: 'Route Deleted',
           status: 'success',
@@ -110,7 +113,7 @@ function MyRoutes(props: MyRouteProps) {
           <Heading size="sm">Distance: {route.distance} miles</Heading>
           <Heading size="sm">
             Elevation Gain: {route.elevationData.gain} ft, Elevation Loss:{' '}
-            {route.elevationData.loss}
+            {route.elevationData.loss} ft
           </Heading>
         </Stack>
       </CardBody>
