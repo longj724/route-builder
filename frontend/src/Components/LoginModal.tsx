@@ -1,6 +1,7 @@
 // External Dependencies
 import {
   Button,
+  Center,
   Flex,
   Modal,
   ModalOverlay,
@@ -13,6 +14,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { User } from 'firebase/auth';
+import { FcGoogle } from 'react-icons/fc';
 
 // Relative Dependencies
 import { auth, signInWithGoogle } from '../Firebase';
@@ -39,13 +41,22 @@ function Login(props: LoginModalProps) {
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
-          <Heading>Sign In With Google</Heading>
+          <Heading>Sign In</Heading>
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <Text mb={5}>Signing in allows you to save routes</Text>
           <Flex justifyContent="center">
-            <Button onClick={login}>Sign In</Button>
+            <Button
+              w="full"
+              variant="solid"
+              leftIcon={<FcGoogle />}
+              onClick={login}
+            >
+              <Center>
+                <Text>Sign in with Google</Text>
+              </Center>
+            </Button>
           </Flex>
         </ModalBody>
 
