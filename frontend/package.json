@@ -37,7 +37,8 @@
     "react-plotly.js": "^2.6.0",
     "react-scripts": "5.0.1",
     "typescript": "^4.9.4",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "worker-loader": "^3.0.8"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -51,18 +52,10 @@
       "react-app/jest"
     ]
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
+  "browserslist": [
+    "defaults",
+    "not ie 11"
+  ],
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
     "@types/d3": "^7.4.0",
