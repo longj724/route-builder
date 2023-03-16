@@ -12,6 +12,7 @@ import Route from './Route';
 import Points from './Points';
 import { useCreateRoute } from '../Hooks/useCreateRoute';
 import { useRoute } from '../Context/RouteProvider';
+import { ActivityType } from '../Utils/utils';
 
 // Types
 declare global {
@@ -20,13 +21,16 @@ declare global {
   }
 }
 
-type RouteBuilderProps = {};
+type RouteBuilderProps = {
+  activityType: ActivityType;
+};
 
 const ACCESS_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
-const RouteBuilder = forwardRef<MapRef, RouteBuilderProps>((_, ref) => {
+const RouteBuilder = forwardRef<MapRef, RouteBuilderProps>((props, ref) => {
+  const { activityType } = props;
   const { setMapViewInfo, route } = useRoute();
-  const { createRouteWithNewPoint } = useCreateRoute();
+  const { createRouteWithNewPoint } = useCreateRoute(activityType);
 
   useEffect(() => {
     localStorage.removeItem('routes');

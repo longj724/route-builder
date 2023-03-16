@@ -9,6 +9,8 @@ export type ElevationGainAndLoss = {
   loss: number;
 };
 
+export type ActivityType = 'RUNNING' | 'CYCLING';
+
 export function formatPoints(points: Point[]): String {
   let formattedPoints = '';
   points.forEach((point, index) => {

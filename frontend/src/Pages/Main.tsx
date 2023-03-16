@@ -19,7 +19,13 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { AddressAutofill } from '@mapbox/search-js-react';
-import { FaMountain, FaUndo, FaSave } from 'react-icons/fa';
+import {
+  FaBicycle,
+  FaMountain,
+  FaRunning,
+  FaSave,
+  FaUndo,
+} from 'react-icons/fa';
 import { onAuthStateChanged } from 'firebase/auth';
 import { MapRef } from 'react-map-gl';
 
@@ -32,6 +38,7 @@ import ElevationProfile from '../Components/ElevationProfile';
 import { useRoute, RouteType, MapViewInfo } from '../Context/RouteProvider';
 import { auth, signOutOfProfile } from '../Firebase';
 import { createOrUpdateRoute, uploadRouteImage } from '../Utils/dbOperations';
+import { ActivityType } from '../Utils/utils';
 import { useCreateRoute } from '../Hooks/useCreateRoute';
 import { useScreenshot } from '../Hooks/useScreenshot';
 
@@ -43,11 +50,12 @@ function Main() {
   const [user, setUser] = useState(auth.currentUser);
   const [selectedRouteID, setSelectedRouteID] = useState('');
   const [routeName, setRouteName] = useState('');
+  const [activityType, setActivityType] = useState<ActivityType>('RUNNING');
 
   const mapRef = useRef<MapRef>(null!);
   const [, takeScreenShot] = useScreenshot();
   const toast = useToast();
-  const { createRouteWithoutLastPoint } = useCreateRoute();
+  const { createRouteWithoutLastPoint } = useCreateRoute(activityType);
   const { route, updateRoute, setMapViewInfo } = useRoute();
   const {
     isOpen: isOpenLoginModal,
@@ -225,7 +233,7 @@ function Main() {
       </Flex>
       <Flex height={showElevationProfile ? '65%' : '100%'} width="100%">
         <Box width="100%" position="relative">
-          <RouteBuilder ref={mapRef} />
+          <RouteBuilder ref={mapRef} activityType={activityType} />
           <Flex
             justifyContent="space-between"
             alignItems="center"
@@ -255,6 +263,28 @@ function Main() {
               mr={2}
               mt="10px"
             >
+              <Tooltip label="Activity - Running">
+                <IconButton
+                  aria-label="icon"
+                  icon={<FaRunning />}
+                  size="md"
+                  onClick={() => setActivityType('RUNNING')}
+                  colorScheme={
+                    activityType === 'RUNNING' ? 'blue' : 'blackAlpha'
+                  }
+                />
+              </Tooltip>
+              <Tooltip label="Activity - Biking">
+                <IconButton
+                  aria-label="icon"
+                  icon={<FaBicycle />}
+                  size="md"
+                  onClick={() => setActivityType('CYCLING')}
+                  colorScheme={
+                    activityType === 'CYCLING' ? 'blue' : 'blackAlpha'
+                  }
+                />
+              </Tooltip>
               <Tooltip label="Remove last point">
                 <IconButton
                   aria-label="icon"
@@ -354,7 +384,7 @@ function Main() {
             height="calc(100vh - 70px)"
           >
             <Flex justifyContent="center">
-              <Heading size="xl" textAlign="center" marginLeft="auto">
+              <Heading size="xl" textAlign="center" marginLeft="auto" mt={1.5}>
                 My Routes
               </Heading>
               <CloseButton

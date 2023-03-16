@@ -4,11 +4,17 @@ import axios from 'axios';
 // Relative Dependencies
 import { useRoute, RouteType } from '../Context/RouteProvider';
 import { Point } from '../Components/Points';
-import { calculateElevationGainAndLoss, formatPoints } from '../Utils/utils';
+import {
+  ActivityType,
+  calculateElevationGainAndLoss,
+  formatPoints,
+} from '../Utils/utils';
 
 const GEOAPIFY_KEY = process.env.REACT_APP_GEOAPIFY_KEY;
 
-export const useCreateRoute = (): {
+export const useCreateRoute = (
+  activityType: ActivityType
+): {
   createRouteWithNewPoint: (newPoint: Point) => void;
   createRouteWithoutLastPoint: () => void;
 } => {
@@ -21,9 +27,11 @@ export const useCreateRoute = (): {
     if (newPoints.length > 1) {
       const formattedPoints = formatPoints(newPoints);
 
+      const travelMode = activityType === 'RUNNING' ? 'hike' : 'bicycle';
+
       axios
         .get(
-          `https://api.geoapify.com/v1/routing?waypoints=${formattedPoints}&mode=walk&details=elevation&units=imperial&apiKey=${GEOAPIFY_KEY}`
+          `https://api.geoapify.com/v1/routing?waypoints=${formattedPoints}&mode=${travelMode}&details=elevation&units=imperial&apiKey=${GEOAPIFY_KEY}`
         )
         .then(({ data }) => {
           let { coordinates } = data.features[0].geometry;
