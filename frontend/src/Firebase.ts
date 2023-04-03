@@ -9,13 +9,7 @@ import {
   setPersistence,
 } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
-import {
-  getFirestore,
-  getDoc,
-  doc,
-  setDoc,
-  connectFirestoreEmulator,
-} from 'firebase/firestore/lite';
+import { getFirestore, getDoc, doc, setDoc } from 'firebase/firestore/lite';
 
 let firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -31,7 +25,6 @@ const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-// connectFirestoreEmulator(db, 'localhost', 8080);
 const provider = new GoogleAuthProvider();
 export const storage = getStorage(app);
 
