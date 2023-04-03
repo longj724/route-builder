@@ -19,6 +19,7 @@ import { RouteType } from '../Context/RouteProvider';
 export const createOrUpdateRoute = async (
   name: string,
   route: RouteType,
+  imagePath: string,
   routeImageURL: string,
   routeId?: string
 ): Promise<string> => {
@@ -52,6 +53,7 @@ export const createOrUpdateRoute = async (
         elevationPoints: elevationPoints,
         mapViewInfo,
         name: name,
+        imagePath: imagePath,
         imageURL: routeImageURL,
         selectedPoints: selectedPoints,
       });
@@ -64,6 +66,7 @@ export const createOrUpdateRoute = async (
       distance: distance,
       elevationData: elevationGainAndLoss,
       elevationPoints: elevationPoints,
+      imagePath: imagePath,
       imageURL: routeImageURL,
       mapViewInfo,
       name: name,
@@ -105,12 +108,17 @@ export const deleteRoute = async (routeId: string) => {
   await deleteDoc(doc(db, 'routes', routeId));
 };
 
-export const uploadRouteImage = async (imageURL: string) => {
+export const uploadRouteImage = async (localImageURL: string) => {
   const imageUID = new Date().valueOf();
 
   const routesRef = ref(storage, `routes/${imageUID}`);
 
-  await uploadString(routesRef, imageURL, 'data_url');
+  const uploadResult = await uploadString(routesRef, localImageURL, 'data_url');
+  const { fullPath } = uploadResult.metadata;
+  const imageURL = await getDownloadURL(routesRef);
 
-  return getDownloadURL(routesRef);
+  return {
+    imagePath: fullPath,
+    imageURL,
+  };
 };

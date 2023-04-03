@@ -44,7 +44,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "cypress:open": "cypress open"
   },
   "eslintConfig": {
     "extends": [
@@ -59,6 +60,7 @@
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
     "@types/d3": "^7.4.0",
-    "@types/react-plotly.js": "^2.5.2"
+    "@types/react-plotly.js": "^2.5.2",
+    "cypress": "^12.8.1"
   }
 }

@@ -151,10 +151,13 @@ function Main() {
     // Have to do this to fix weird TypeScript error
     if (typeof takeScreenShot === 'function') {
       const base64Image = await takeScreenShot(mapRef.current.getCanvas());
-      const imageURL = await uploadRouteImage(base64Image as string);
+      const { imageURL, imagePath } = await uploadRouteImage(
+        base64Image as string
+      );
       const response = await createOrUpdateRoute(
         routeName,
         route,
+        imagePath,
         imageURL,
         selectedRouteID
       );
