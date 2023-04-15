@@ -17,6 +17,7 @@ import {
   Menu,
   MenuGroup,
   useToast,
+  Spinner,
 } from '@chakra-ui/react';
 import { AddressAutofill } from '@mapbox/search-js-react';
 import {
@@ -26,6 +27,7 @@ import {
   FaSave,
   FaUndo,
 } from 'react-icons/fa';
+import { BiCurrentLocation } from 'react-icons/bi';
 import { onAuthStateChanged } from 'firebase/auth';
 import { MapRef } from 'react-map-gl';
 
@@ -52,6 +54,7 @@ function Main() {
   const [routeName, setRouteName] = useState('');
   const [activityType, setActivityType] = useState<ActivityType>('RUNNING');
 
+  const spinnerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapRef>(null!);
   const [, takeScreenShot] = useScreenshot();
   const toast = useToast();
@@ -75,6 +78,25 @@ function Main() {
       }
     });
   }, []);
+
+  const moveMapToBrowserLocation = () => {
+    if (spinnerRef?.current) {
+      spinnerRef.current.style.display = 'inherit';
+    }
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(({ coords }) => {
+        const newMapViewInfo: MapViewInfo = {
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+          zoom: 15,
+        };
+        setMapViewInfo(newMapViewInfo);
+        if (spinnerRef?.current) {
+          spinnerRef.current.style.display = 'none';
+        }
+      });
+    }
+  };
 
   const getPrevRoute = () => {
     const routes = JSON.parse(localStorage.getItem('routes') as string);
@@ -244,21 +266,42 @@ function Main() {
             top="0"
             width="100%"
           >
-            <AddressAutofill
-              accessToken={ACCESS_TOKEN}
-              browserAutofillEnabled={false}
-              onRetrieve={selectAddress}
-            >
-              <Input
-                height="30px"
-                color="black"
-                backgroundColor="white"
-                ml={2}
-                placeholder="Search for address"
-                type="text"
-                name="address"
-              />
-            </AddressAutofill>
+            <Flex gap={3}>
+              <AddressAutofill
+                accessToken={ACCESS_TOKEN}
+                browserAutofillEnabled={false}
+                onRetrieve={selectAddress}
+              >
+                <Input
+                  height="30px"
+                  color="black"
+                  backgroundColor="white"
+                  ml={2}
+                  placeholder="Search for address"
+                  type="text"
+                  name="address"
+                />
+              </AddressAutofill>
+              <Tooltip label="Get Current Location">
+                <IconButton
+                  aria-label="icon"
+                  icon={<BiCurrentLocation />}
+                  size="sm"
+                  colorScheme="blue"
+                  onClick={moveMapToBrowserLocation}
+                />
+              </Tooltip>
+              <Flex
+                alignItems="center"
+                backgroundColor="blue.500"
+                borderRadius="5px"
+                display="none"
+                padding={1}
+                ref={spinnerRef}
+              >
+                <Spinner color="white" />
+              </Flex>
+            </Flex>
             <Flex
               justifyContent="center"
               alignItems="space-between"
